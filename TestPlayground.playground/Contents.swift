@@ -17,28 +17,21 @@ class MyViewController : UIViewController {
         let uberSC = UberSegmentedControl(items: items)
         let uberMultiSC = UberSegmentedControl(items: items, allowsMultipleSelection: true)
 
-        let labels = [
-            "Mail",
-            "Book",
-            "Phone",
-        ]
-
         let imageItems = [
             UIImage(named: "ic_mail_outline_18pt")!,
             UIImage(named: "ic_import_contacts_18pt")!,
             UIImage(named: "ic_contact_phone_18pt")!,
         ]
 
-        for (idx, item) in imageItems.enumerated() {
-            item.accessibilityLabel = labels[idx]
-        }
-
         let uiImageSC = UISegmentedControl(items: imageItems)
         let uberImageSC = UberSegmentedControl(items: imageItems)
         let uberMultiImageSC = UberSegmentedControl(items: imageItems, allowsMultipleSelection: true)
 
         let uberImageAndLabelSC = UberSegmentedControl(items: imageItems, allowsMultipleSelection: true)
-        uberImageAndLabelSC.shouldDisplayAccessibilityLabel = true
+
+        for (idx, label) in ["Mail", "Book", "Phone"].enumerated() {
+            uberImageAndLabelSC.setTitle(label, forSegmentAt: idx)
+        }
 
         let stackView = UIStackView(arrangedSubviews: [
             label(titled: "UISegmentedControl"),
@@ -48,10 +41,10 @@ class MyViewController : UIViewController {
             label(titled: "UberSegmentedControl"),
             uberSC,
             uberImageSC,
-            label(titled: "Using Multiple Selection", fontSize: UIFont.smallSystemFontSize),
+            label(titled: "With Multiple Selection", fontSize: UIFont.smallSystemFontSize),
             uberMultiSC,
             uberMultiImageSC,
-            label(titled: "With Accessibility Label", fontSize: UIFont.smallSystemFontSize),
+            label(titled: "With Image and Title", fontSize: UIFont.smallSystemFontSize),
             uberImageAndLabelSC
         ])
 

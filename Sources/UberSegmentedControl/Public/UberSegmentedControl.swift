@@ -18,25 +18,10 @@ open class UberSegmentedControl: UIControl {
     /// Returns the number of segments the receiver has.
     open var numberOfSegments: Int { segmentsStackView.arrangedSubviews.count }
 
-    /// When enabled, assuming a segmented control contains an image, adds a label next to the image based on the
-    /// accessibility label for that button.
-    open var shouldDisplayAccessibilityLabel: Bool = false {
-        didSet {
-            for button in segments {
-                if button.currentImage != nil, let label = button.accessibilityLabel {
-                    if shouldDisplayAccessibilityLabel {
-                        button.setTitle(label, for: .normal)
-                        button.titleEdgeInsets = Constants.Margins.titleEdgeInsets
-                    } else {
-                        button.setTitle(nil, for: .normal)
-                        button.titleEdgeInsets = .zero
-                    }
-                }
-            }
-        }
+    /// The natural size for the control.
+    open override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: Constants.Measure.segmentHeight)
     }
-
-    open override var intrinsicContentSize: CGSize { CGSize(width: UIView.noIntrinsicMetric, height: 32) }
 
     // MARK: - Private Properties
 
@@ -132,7 +117,6 @@ extension UberSegmentedControl {
 
         button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .highlighted)
-        button.accessibilityLabel = image?.accessibilityLabel
 
         insertSegment(withButton: button, at: segment, animated: animated)
     }
@@ -176,7 +160,16 @@ extension UberSegmentedControl {
     open func setTitle(_ title: String?, forSegmentAt segment: Int) {
         guard segment < segments.count else { return }
 
-        segments[segment].setTitle(title, for: .normal)
+        let button = segments[segment]
+
+        button.setTitle(title, for: .normal)
+        button.accessibilityLabel = title
+
+        if button.currentImage != nil, title != nil {
+            button.titleEdgeInsets = Constants.Margins.titleEdgeInsets
+        } else {
+            button.titleEdgeInsets = .zero
+        }
     }
 
     /// Returns the title of the specified segment.
@@ -195,7 +188,15 @@ extension UberSegmentedControl {
     open func setImage(_ image: UIImage?, forSegmentAt segment: Int) {
         guard segment < segments.count else { return }
 
-        segments[segment].setImage(image, for: .normal)
+        let button = segments[segment]
+
+        button.setImage(image, for: .normal)
+
+        if button.currentTitle != nil, image != nil {
+            button.titleEdgeInsets = Constants.Margins.titleEdgeInsets
+        } else {
+            button.titleEdgeInsets = .zero
+        }
     }
 
     /// Returns the image for a specific segment.

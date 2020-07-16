@@ -65,6 +65,7 @@ extension Constants.Measure {
     static let segmentShadowRadius: CGFloat = 4
     static let segmentShadowOpacity: Float = 0.1
     static let segmentShadowOffset = CGSize(width: 0, height: 3)
+    static let segmentHeight: CGFloat = 32
 }
 
 extension Constants.Margins {
