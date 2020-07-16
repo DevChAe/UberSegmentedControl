@@ -39,4 +39,4 @@ See `TestPlayground.playground` for a full working example.
 
 ### License
 
-UberSegmentedControl is released under the MIT license. See [LICENSE](LICENSE.md) for details.
+UberSegmentedControl is released under the MIT license. See [LICENSE](LICENSE) for details.
