@@ -2,13 +2,13 @@
 
 A control based on `UISegmentedControl` that supports single or multiple selected segments. 
 
-### Requirements:
+## Requirements
 
 - iOS 9.0+ / iPadOS 13+
 - Xcode 11+
 - Swift 4.2+
 
-### Usage:
+## Usage
 
 ```swift
 override func loadView() {
@@ -33,10 +33,10 @@ override func loadView() {
 }
 ```
 
-### Notes:
+## Notes
 
 See `TestPlayground.playground` for a full working example.
 
-### License
+## License
 
 UberSegmentedControl is released under the MIT license. See [LICENSE](LICENSE) for details.
