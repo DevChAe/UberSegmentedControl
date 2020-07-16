@@ -1,6 +1,10 @@
 # UberSegmentedControl
 
+<img align="right" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
+
 A control based on `UISegmentedControl` that supports single or multiple selected segments. 
+
+<br clear="right"/>
 
 ## Requirements
 
@@ -32,13 +36,6 @@ override func loadView() {
     print("selectedSegmentIndexes: \(Array(sender.selectedSegmentIndexes))")
 }
 ```
-
-## Demo
-
-<p align="center">
-    <img src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
-</p>
-
 
 ## Notes
 
