@@ -36,7 +36,7 @@ override func loadView() {
 ## Demo
 
 <p align="center">
-    <img src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="375" height="667" />
+    <img src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
 </p>
 
 
