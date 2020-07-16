@@ -2,6 +2,10 @@
 
 A control based on `UISegmentedControl` that supports single or multiple selected segments. 
 
+<p align="center">
+    <img src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="375" height="667" />
+</p>
+
 ## Requirements
 
 - iOS 9.0+ / iPadOS 13+
