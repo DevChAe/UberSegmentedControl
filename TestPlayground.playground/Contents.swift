@@ -5,6 +5,9 @@ import PlaygroundSupport
 import UberSegmentedControl
 
 class MyViewController : UIViewController {
+    let observers = NSMapTable<UberSegmentedControl, NSKeyValueObservation>(keyOptions: .weakMemory,
+                                                                            valueOptions: .strongMemory)
+    
     override func loadView() {
         let view = UIView()
 
@@ -56,6 +59,13 @@ class MyViewController : UIViewController {
 
         // Handle value changes
         uberMultiImageSC.addTarget(self, action: #selector(uberSCChanged), for: .valueChanged)
+        
+        // Alternatively, observe changes on `selectedSegmentIndexes`.
+        observers.setObject(uberMultiImageSC.observe(\.selectedSegmentIndexes, options: [.new, .old]) { (control, change) in
+            if let oldIndexes = change.oldValue, let newIndexes = change.newValue {
+                print("oldIndexes: \(Array(oldIndexes)), newIndexes: \(Array(newIndexes))")
+            }
+        }, forKey: uberMultiImageSC)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -67,6 +77,12 @@ class MyViewController : UIViewController {
         stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
 
         self.view = view
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        observers.removeAllObjects()
     }
 }
 

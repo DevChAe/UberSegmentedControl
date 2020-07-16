@@ -376,6 +376,8 @@ private extension UberSegmentedControl {
 extension UberSegmentedControl {
     @objc func buttonTapped(_ button: UIButton) {
         guard button.isEnabled else { return }
+        
+        willChangeValue(for: \.selectedSegmentIndexes)
 
         if allowsMultipleSelection {
             UIView.animate(withDuration: Constants.Duration.snappy) {
@@ -390,6 +392,8 @@ extension UberSegmentedControl {
                 self.handleSingleSelectionButtonTap(using: button)
             } completion: { _ in /* NO-OP */ }
         }
+        
+        didChangeValue(for: \.selectedSegmentIndexes)
 
         sendActions(for: .valueChanged)
 
