@@ -1,10 +1,10 @@
 # UberSegmentedControl
 
-<img align="right" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
+<img align="left" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
 
 A control based on `UISegmentedControl` that supports single or multiple selected segments. 
 
-<br clear="right"/>
+<br clear="left"/>
 
 ## Requirements
 
