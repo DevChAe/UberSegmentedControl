@@ -86,26 +86,42 @@ open class UberSegmentedControl: UIControl {
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    deinit {
-        buttonObservers.removeAllObjects()
-    }
 }
 
 // MARK: - View Overrides
 
 extension UberSegmentedControl {
-    open override func layoutSubviews() {
-        super.layoutSubviews()
+    open override func didMoveToSuperview() {
+        super.didMoveToSuperview()
 
-        // Ensure `selectionButton` is setup when single selection mode is used and a segment is selected.
-        if !allowsMultipleSelection, selectionButton == nil, let segmentIndex = selectedSegmentIndexes.first {
-            let segment = segments[segmentIndex]
+        if !allowsMultipleSelection {
+            buttonObservers.removeAllObjects()
 
-            if segment.isSelected {
-                updateSelectionButton(using: segment)
+            // Keep `isHighlighted` state synchronized between `selectionButton` and `button` when using
+            // single selection mode.
+            for segment in segments {
+                buttonObservers.setObject(segment.observe(\.isHighlighted, changeHandler: { (button, change) in
+                    if self.selectionButton?.center == button.center {
+                        self.selectionButton?.isHighlighted = button.isHighlighted
+                    }
+                }), forKey: segment)
+            }
+
+            // Ensure `selectionButton` is setup when single selection mode is used and a segment is selected.
+            if selectionButton == nil, let segmentIndex = selectedSegmentIndexes.first {
+                let segment = segments[segmentIndex]
+
+                if segment.isSelected {
+                    updateSelectionButton(using: segment)
+                }
             }
         }
+    }
+
+    open override func removeFromSuperview() {
+        super.removeFromSuperview()
+
+        buttonObservers.removeAllObjects()
     }
 }
 
@@ -154,15 +170,18 @@ extension UberSegmentedControl {
             dividersStackView.removeArrangedSubview(view)
         }
 
-        UIView.animate(withDuration: Constants.Duration.regular) {
-            UIView.setAnimationsEnabled(animated)
-            view.isHidden = true
-            UIView.setAnimationsEnabled(true)
-        } completion: { _ in
+        let onCompletion: () -> () = {
             view.removeFromSuperview()
             self.segmentsStackView.removeArrangedSubview(view)
         }
 
+        if animated {
+            UIView.animate(withDuration: Constants.Duration.regular) {
+                view.isHidden = true
+            } completion: { _ in onCompletion() }
+        } else {
+            onCompletion()
+        }
     }
 
     /// Removes all segments of the receiver.
@@ -257,14 +276,22 @@ extension UberSegmentedControl {
         get { IndexSet(segments.enumerated().filter { $1.isSelected }.map { $0.offset }) }
 
         set {
+            var shouldDeselectOtherSegments = false
+
             for (i, segment) in segments.enumerated() {
-                segment.isSelected = newValue.contains(i)
-                updateDividers()
+                if shouldDeselectOtherSegments {
+                    segment.isSelected = false
+                } else {
+                    segment.isSelected = newValue.contains(i)
+                }
 
                 if !allowsMultipleSelection, segment.isSelected {
+                    shouldDeselectOtherSegments = true
                     updateSelectionButton(using: segment)
                 }
             }
+
+            updateDividers()
         }
     }
 }
@@ -286,27 +313,13 @@ private extension UberSegmentedControl {
             button.selectedBackgroundTintColor = selectedSegmentTintColor
         }
 
-        if !allowsMultipleSelection {
-            // Keep `isHighlighted` state synchronized between `selectionButton` and `button` when using
-            // single selection mode.
-            buttonObservers.setObject(button.observe(\.isHighlighted, changeHandler: { (button, change) in
-                if self.selectionButton?.center == button.center {
-                    self.selectionButton?.isHighlighted = button.isHighlighted
-                }
-            }), forKey: button)
-        }
-
-        button.isHidden = true
+        if animated { button.isHidden = true }
 
         segmentsStackView.insertArrangedSubview(button, at: segment)
         dividersStackView.addArrangedSubview(DividerView())
         updateDividers()
 
-        UIView.animate(withDuration: Constants.Duration.regular) {
-            UIView.setAnimationsEnabled(animated)
-            button.isHidden = false
-            UIView.setAnimationsEnabled(true)
-        }
+        if animated { UIView.animate(withDuration: Constants.Duration.regular) { button.isHidden = false } }
     }
 
     func setup() {
