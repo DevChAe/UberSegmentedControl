@@ -241,6 +241,10 @@ extension UberSegmentedControl {
             for (i, segment) in segments.enumerated() {
                 segment.isSelected = newValue.contains(i)
                 updateDividers()
+
+                if !allowsMultipleSelection, segment.isSelected {
+                    updateSelectionButton(using: segment)
+                }
             }
         }
     }
@@ -351,6 +355,12 @@ private extension UberSegmentedControl {
     }
 
     func updateSelectionButton(using button: UIButton) {
+        if button.bounds.size == .zero {
+            // Layout segment subviews
+            segmentsStackView.layoutSubviews()
+        }
+
+        // Ensure button has a size.
         guard button.bounds.size != .zero else { return }
 
         if selectionButton == nil {
