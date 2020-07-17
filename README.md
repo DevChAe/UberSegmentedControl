@@ -1,10 +1,14 @@
 # UberSegmentedControl
 
-<img align="left" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
+<img align="right" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
 
 A control inspired by Apple's `UISegmentedControl` that allows single or multiple selection and can display segments containing: only a title, only an image, or both at the same time.
 
-<br clear="left"/>
+## Features
+
+- Allows single or multiple selection
+- Segments may display titles, images or both at the same time
+- Supports both light and dark appearance (only iOS / iPadOS 13+)
 
 ## Requirements
 
@@ -12,11 +16,7 @@ A control inspired by Apple's `UISegmentedControl` that allows single or multipl
 - Xcode 11+
 - Swift 4.2+
 
-## Features
-
-- Allows single or multiple selection
-- Segments may display titles, images or both at the same time
-- Supports both light and dark appearance (only iOS / iPadOS 13+)
+<br clear="right"/>
 
 ## Usage
 
