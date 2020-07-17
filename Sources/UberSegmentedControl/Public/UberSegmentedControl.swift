@@ -91,6 +91,21 @@ open class UberSegmentedControl: UIControl {
 // MARK: - View Overrides
 
 extension UberSegmentedControl {
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if !allowsMultipleSelection {
+            // Ensure `selectionButton` is setup when single selection mode is used and a segment is selected.
+            if selectionButton == nil, let segmentIndex = selectedSegmentIndexes.first {
+                let segment = segments[segmentIndex]
+
+                if segment.isSelected {
+                    updateSelectionButton(using: segment)
+                }
+            }
+        }
+    }
+
     open override func didMoveToSuperview() {
         super.didMoveToSuperview()
 
@@ -105,15 +120,6 @@ extension UberSegmentedControl {
                         self.selectionButton?.isHighlighted = button.isHighlighted
                     }
                 }), forKey: segment)
-            }
-
-            // Ensure `selectionButton` is setup when single selection mode is used and a segment is selected.
-            if selectionButton == nil, let segmentIndex = selectedSegmentIndexes.first {
-                let segment = segments[segmentIndex]
-
-                if segment.isSelected {
-                    updateSelectionButton(using: segment)
-                }
             }
         }
     }
