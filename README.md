@@ -21,6 +21,9 @@ A control inspired by Apple's `UISegmentedControl` that allows single or multipl
 ## Usage
 
 ```swift
+let observers = NSMapTable<UberSegmentedControl, NSKeyValueObservation>(keyOptions: .weakMemory,
+                                                                        valueOptions: .strongMemory)
+
 override func loadView() {
   let items = ["Bold", "Italics", "Underline"]
 
@@ -35,7 +38,20 @@ override func loadView() {
   // Handle value changes
   uberSC.addTarget(self, action: #selector(uberSCChanged), for: .valueChanged)
   
+  // Alternatively, observe changes on `selectedSegmentIndexes`.
+  observers.setObject(uberSC.observe(\.selectedSegmentIndexes, options: [.new, .old]) { (control, change) in
+      if let oldIndexes = change.oldValue, let newIndexes = change.newValue {
+          print("oldIndexes: \(Array(oldIndexes)), newIndexes: \(Array(newIndexes))")
+      }
+  }, forKey: uberSC)
+  
   view.addSubview(uberSC)
+}
+
+override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+
+    observers.removeAllObjects()
 }
 
 @objc func uberSCChanged(_ sender: UberSegmentedControl) {
