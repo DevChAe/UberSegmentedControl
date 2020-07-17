@@ -11,7 +11,7 @@ class MyViewController : UIViewController {
     override func loadView() {
         let view = UIView()
 
-        view.backgroundColor = .systemYellow
+        view.backgroundColor = .systemBackground
         view.overrideUserInterfaceStyle = .light
 
         let items = ["Bold", "Italics", "Underline"]
@@ -73,7 +73,10 @@ class MyViewController : UIViewController {
 
         view.addSubview(stackView)
 
-        stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        view.layoutMargins = UIEdgeInsets(top: 44, left: 44, bottom: 44, right: 44)
+
+        stackView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor).isActive = true
         stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
 
         self.view = view

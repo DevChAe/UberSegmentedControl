@@ -1,6 +1,6 @@
 # UberSegmentedControl
 
-<img align="right" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="280" height="310" />
+<img align="right" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="300" height="300" />
 
 A control inspired by Apple's `UISegmentedControl` that allows single or multiple selection and can display segments containing: only a title, only an image, or both at the same time.
 
