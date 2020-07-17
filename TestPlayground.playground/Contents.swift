@@ -73,10 +73,7 @@ class MyViewController : UIViewController {
 
         view.addSubview(stackView)
 
-        view.layoutMargins = UIEdgeInsets(top: 44, left: 44, bottom: 44, right: 44)
-
-        stackView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor).isActive = true
+        stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
 
         self.view = view

@@ -209,11 +209,7 @@ extension UberSegmentedControl {
         button.setTitle(title, for: .normal)
         button.accessibilityLabel = title
 
-        if button.currentImage != nil, title != nil {
-            button.titleEdgeInsets = Constants.Margins.titleEdgeInsets
-        } else {
-            button.titleEdgeInsets = .zero
-        }
+        updateSegmentInsets(segment: button)
     }
 
     /// Returns the title of the specified segment.
@@ -236,11 +232,7 @@ extension UberSegmentedControl {
 
         button.setImage(image, for: .normal)
 
-        if button.currentTitle != nil, image != nil {
-            button.titleEdgeInsets = Constants.Margins.titleEdgeInsets
-        } else {
-            button.titleEdgeInsets = .zero
-        }
+        updateSegmentInsets(segment: button)
     }
 
     /// Returns the image for a specific segment.
@@ -305,15 +297,38 @@ extension UberSegmentedControl {
 // MARK: - Private Functions
 
 private extension UberSegmentedControl {
+    func updateSegmentInsets(segment: SegmentButton) {
+        if segment.currentImage != nil, segment.currentTitle != nil {
+            segment.titleEdgeInsets = Constants.Margins.titleEdgeInsets
+        } else {
+            segment.titleEdgeInsets = .zero
+        }
+
+        segment.contentEdgeInsets = suggestedContentEdgeInsetsForSegment(segment: segment)
+    }
+
+    func suggestedContentEdgeInsetsForSegment(segment: SegmentButton) -> UIEdgeInsets {
+        if segment.currentTitle != nil, segment.currentImage != nil {
+            var insets = Constants.Margins.segmentContentEdgeInsets
+
+            insets.right = segment.titleEdgeInsets.left - (segment.titleEdgeInsets.right * 2)
+
+            return insets
+        } else {
+            return Constants.Margins.segmentContentEdgeInsets
+        }
+    }
+
     func insertSegment(withButton button: SegmentButton, at segment: Int, animated: Bool) {
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
         button.translatesAutoresizingMaskIntoConstraints = false
         button.adjustsImageWhenHighlighted = false
-        button.contentEdgeInsets = Constants.Margins.segmentContentEdgeInsets
         button.tintColor = Constants.Color.label
         button.setTitleColor(Constants.Color.label, for: .normal)
         button.titleLabel?.font = Constants.Font.segmentTitleLabel
+
+        updateSegmentInsets(segment: button)
 
         if allowsMultipleSelection {
             button.selectedBackgroundTintColor = selectedSegmentTintColor
