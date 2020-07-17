@@ -65,7 +65,7 @@ override func viewWillDisappear(_ animated: Bool) {
 
 ## Notes
 
-See `TestPlayground.playground` for a full working example.
+See `TestPlayground.playground` for a full working example (requires Xcode 12+.)
 
 ## License
 
