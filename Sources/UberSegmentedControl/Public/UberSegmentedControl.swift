@@ -209,7 +209,7 @@ extension UberSegmentedControl {
         button.setTitle(title, for: .normal)
         button.accessibilityLabel = title
 
-        updateSegmentInsets(segment: button)
+        updateSegmentInsets(for: button)
     }
 
     /// Returns the title of the specified segment.
@@ -232,7 +232,7 @@ extension UberSegmentedControl {
 
         button.setImage(image, for: .normal)
 
-        updateSegmentInsets(segment: button)
+        updateSegmentInsets(for: button)
     }
 
     /// Returns the image for a specific segment.
@@ -297,17 +297,17 @@ extension UberSegmentedControl {
 // MARK: - Private Functions
 
 private extension UberSegmentedControl {
-    func updateSegmentInsets(segment: SegmentButton) {
+    func updateSegmentInsets(for segment: SegmentButton) {
         if segment.currentImage != nil, segment.currentTitle != nil {
             segment.titleEdgeInsets = Constants.Margins.titleEdgeInsets
         } else {
             segment.titleEdgeInsets = .zero
         }
 
-        segment.contentEdgeInsets = suggestedContentEdgeInsetsForSegment(segment: segment)
+        segment.contentEdgeInsets = suggestedContentEdgeInsets(for: segment)
     }
 
-    func suggestedContentEdgeInsetsForSegment(segment: SegmentButton) -> UIEdgeInsets {
+    func suggestedContentEdgeInsets(for segment: SegmentButton) -> UIEdgeInsets {
         if segment.currentTitle != nil, segment.currentImage != nil {
             var insets = Constants.Margins.segmentContentEdgeInsets
 
@@ -328,7 +328,7 @@ private extension UberSegmentedControl {
         button.setTitleColor(Constants.Color.label, for: .normal)
         button.titleLabel?.font = Constants.Font.segmentTitleLabel
 
-        updateSegmentInsets(segment: button)
+        updateSegmentInsets(for: button)
 
         if allowsMultipleSelection {
             button.selectedBackgroundTintColor = selectedSegmentTintColor
