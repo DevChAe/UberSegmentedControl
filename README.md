@@ -18,6 +18,10 @@ A control inspired by Apple's `UISegmentedControl` that allows single or multipl
 
 <br clear="right"/>
 
+## Installation
+
+Install it as a dependency of your Xcode project using [Swift Package Manager](https://swift.org/package-manager/).
+
 ## Usage
 
 ```swift
