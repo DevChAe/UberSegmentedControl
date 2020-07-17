@@ -254,9 +254,10 @@ private extension UberSegmentedControl {
 
         button.translatesAutoresizingMaskIntoConstraints = false
         button.adjustsImageWhenHighlighted = false
+        button.contentEdgeInsets = Constants.Margins.segmentContentEdgeInsets
         button.tintColor = Constants.Color.label
-        button.setTitleColor(button.tintColor, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: UIFont.smallSystemFontSize + 1, weight: .medium)
+        button.setTitleColor(Constants.Color.label, for: .normal)
+        button.titleLabel?.font = Constants.Font.segmentTitleLabel
 
         if allowsMultipleSelection {
             button.selectedBackgroundTintColor = selectedSegmentTintColor
@@ -330,44 +331,50 @@ private extension UberSegmentedControl {
     func handleMultipleSelectionButtonTap(using button: UIButton) {
         button.isSelected = !button.isSelected
 
-        for someButton in segments {
-            someButton.isHighlighted = button == someButton
+        for segment in segments {
+            segment.isHighlighted = button == segment
         }
     }
 
     func handleSingleSelectionButtonTap(using button: UIButton) {
+        updateSelectionButton(using: button)
+
+        for segment in segments {
+            if button == segment {
+                segment.isSelected = true
+                segment.isHighlighted = true
+            } else {
+                segment.isSelected = false
+                segment.isHighlighted = false
+            }
+        }
+    }
+
+    func updateSelectionButton(using button: UIButton) {
+        guard button.bounds.size != .zero else { return }
+
         if selectionButton == nil {
             UIView.setAnimationsEnabled(false)
 
-            let selectedButton = SegmentButton()
+            let selectionButton = SegmentButton()
 
-            selectedButton.isUserInteractionEnabled = false
-            selectedButton.selectedBackgroundTintColor = selectedSegmentTintColor
-            selectedButton.isSelected = true
-            selectedButton.center = button.center
-            selectedButton.bounds = button.bounds
-            selectedButton.alpha = 0
+            selectionButton.isUserInteractionEnabled = false
+            selectionButton.selectedBackgroundTintColor = selectedSegmentTintColor
+            selectionButton.isSelected = true
+            selectionButton.center = button.center
+            selectionButton.bounds = button.bounds
+            selectionButton.alpha = 0
 
-            insertSubview(selectedButton, belowSubview: segmentsStackView)
+            insertSubview(selectionButton, belowSubview: segmentsStackView)
 
             UIView.setAnimationsEnabled(true)
 
-            self.selectionButton = selectedButton
+            self.selectionButton = selectionButton
         }
 
         selectionButton?.center = button.center
         selectionButton?.bounds = button.bounds
         selectionButton?.alpha = 1
-
-        for someButton in segments {
-            if button == someButton {
-                someButton.isSelected = true
-                someButton.isHighlighted = true
-            } else {
-                someButton.isSelected = false
-                someButton.isHighlighted = false
-            }
-        }
     }
 }
 

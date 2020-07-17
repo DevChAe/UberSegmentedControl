@@ -12,6 +12,7 @@ struct Constants {
     struct Measure {}
     struct Margins {}
     struct Duration {}
+    struct Font {}
 }
 
 extension Constants.Color {
@@ -71,10 +72,15 @@ extension Constants.Measure {
 extension Constants.Margins {
     static let dividerInsets = UIEdgeInsets(top: 6, left: 0, bottom: 6, right: 0)
     static let segmentInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+    static let segmentContentEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
     static let titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 0)
 }
 
 extension Constants.Duration {
     static let snappy: TimeInterval = 0.125
     static let regular: TimeInterval = 0.500
+}
+
+extension Constants.Font {
+    static let segmentTitleLabel = UIFont.systemFont(ofSize: UIFont.smallSystemFontSize + 1, weight: .medium)
 }
