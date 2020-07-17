@@ -92,6 +92,25 @@ open class UberSegmentedControl: UIControl {
     }
 }
 
+// MARK: - View Overrides
+
+extension UberSegmentedControl {
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Ensure `selectionButton` is setup when single selection mode is used and a segment is selected.
+        if !allowsMultipleSelection, selectionButton == nil, let segmentIndex = selectedSegmentIndexes.first {
+            let segment = segments[segmentIndex]
+
+            if segment.isSelected {
+                updateSelectionButton(using: segment)
+            }
+        }
+    }
+}
+
+// MARK: - Open Functions and Properties
+
 extension UberSegmentedControl {
     /// Inserts a segment at a specific position in the receiver and gives it a title as content.
     ///
