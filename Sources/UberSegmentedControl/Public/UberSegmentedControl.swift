@@ -182,9 +182,11 @@ extension UberSegmentedControl {
         }
 
         if animated {
-            UIView.animate(withDuration: Constants.Duration.regular) {
+            UIView.animate(withDuration: Constants.Duration.regular, animations: {
                 view.isHidden = true
-            } completion: { _ in onCompletion() }
+            }, completion: { _ in
+                onCompletion()
+            })
         } else {
             onCompletion()
         }
@@ -458,9 +460,11 @@ extension UberSegmentedControl {
                            delay: 0,
                            usingSpringWithDamping: 0.85,
                            initialSpringVelocity: 0.1,
-                           options: .curveEaseOut) {
+                           options: .curveEaseOut, animations: {
                 self.handleSingleSelectionButtonTap(using: button)
-            } completion: { _ in /* NO-OP */ }
+            }, completion: { _ in
+                /* NO-OP */
+            })
         }
         
         didChangeValue(for: \.selectedSegmentIndexes)
