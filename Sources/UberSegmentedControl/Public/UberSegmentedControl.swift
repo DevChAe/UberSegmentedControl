@@ -366,10 +366,10 @@ private extension UberSegmentedControl {
 
         longPressGestureRecognizer.delegate = self
         longPressGestureRecognizer.minimumPressDuration = 0
-        longPressGestureRecognizer.addTarget(self, action: #selector(handlePanGesture(recognizer:)))
+        longPressGestureRecognizer.addTarget(self, action: #selector(handleGesture(recognizer:)))
 
         panGestureRecognizer.delegate = self
-        panGestureRecognizer.addTarget(self, action: #selector(handlePanGesture(recognizer:)))
+        panGestureRecognizer.addTarget(self, action: #selector(handleGesture(recognizer:)))
     }
 
     func updateDividers() {
@@ -483,7 +483,7 @@ extension UberSegmentedControl: UIGestureRecognizerDelegate {
 // MARK: - Gesture Recognizer Actions
 
 extension UberSegmentedControl {
-    @objc func handlePanGesture(recognizer: UIGestureRecognizer) {
+    @objc func handleGesture(recognizer: UIGestureRecognizer) {
         if let button = gestureHandler.handle(recognizer: recognizer) {
             buttonTapped(button)
         }
