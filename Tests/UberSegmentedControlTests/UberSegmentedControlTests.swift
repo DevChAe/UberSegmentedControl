@@ -10,6 +10,11 @@ final class UberSegmentedControlTests: XCTestCase {
         multiTextSC = UberSegmentedControl(items: ["Left", "Right"], allowsMultipleSelection: true)
     }
 
+    override func tearDown() {
+        singleTextSC = nil
+        multiTextSC = nil
+    }
+
     func testNumberOfSegments() {
         // Control should have exactly 2 segments.
         XCTAssertEqual(singleTextSC.numberOfSegments, 2)

@@ -77,7 +77,7 @@ extension Constants.Margins {
 }
 
 extension Constants.Duration {
-    static let snappy: TimeInterval = 0.125
+    static let snappy: TimeInterval = 0.250
     static let regular: TimeInterval = 0.500
 }
 

@@ -7,28 +7,35 @@
 
 import UIKit
 
+private protocol Anchorable {
+    var leadingAnchor: NSLayoutXAxisAnchor { get }
+    var trailingAnchor: NSLayoutXAxisAnchor { get }
+    var topAnchor: NSLayoutYAxisAnchor { get }
+    var bottomAnchor: NSLayoutYAxisAnchor { get }
+}
+
+extension UIView: Anchorable {}
+extension UILayoutGuide: Anchorable {}
+
 extension UIView {
     @discardableResult
-    func fill(with view: UIView, usingMarginsGuide: Bool = false, shouldAutoActivate: Bool = false) -> [NSLayoutConstraint]? {
+    func fill(with view: UIView,
+              constant: CGFloat = 0,
+              usingGuide layoutGuide: UILayoutGuide? = nil,
+              shouldAutoActivate: Bool = false) -> [NSLayoutConstraint]?
+    {
         guard !subviews.contains(view) else { return nil }
 
         view.translatesAutoresizingMaskIntoConstraints = false
-
         addSubview(view)
 
+        let anchorable: Anchorable = layoutGuide ?? self
         var constraints: [NSLayoutConstraint] = []
 
-        if usingMarginsGuide {
-            constraints.append(view.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor))
-            constraints.append(view.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor))
-            constraints.append(view.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor))
-            constraints.append(view.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor))
-        } else {
-            constraints.append(view.leadingAnchor.constraint(equalTo: leadingAnchor))
-            constraints.append(view.trailingAnchor.constraint(equalTo: trailingAnchor))
-            constraints.append(view.topAnchor.constraint(equalTo: topAnchor))
-            constraints.append(view.bottomAnchor.constraint(equalTo: bottomAnchor))
-        }
+        constraints.append(view.leadingAnchor.constraint(equalTo: anchorable.leadingAnchor, constant: constant))
+        constraints.append(view.trailingAnchor.constraint(equalTo: anchorable.trailingAnchor, constant: constant))
+        constraints.append(view.topAnchor.constraint(equalTo: anchorable.topAnchor, constant: constant))
+        constraints.append(view.bottomAnchor.constraint(equalTo: anchorable.bottomAnchor, constant: constant))
 
         if shouldAutoActivate {
             for constraint in constraints {
@@ -39,4 +46,3 @@ extension UIView {
         return constraints
     }
 }
-

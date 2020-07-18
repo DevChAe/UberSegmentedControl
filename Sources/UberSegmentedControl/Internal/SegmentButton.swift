@@ -8,39 +8,9 @@
 import UIKit
 
 class SegmentButton: UIButton {
-    var selectedBackgroundTintColor: UIColor?
+    // MARK: - Internal Properties
 
-    override var isSelected: Bool {
-        didSet {
-            updateBackground()
-        }
-    }
-
-    override var isHighlighted: Bool {
-        didSet {
-            // Animate alpha fade
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.Duration.snappy) {
-                UIView.animate(withDuration: Constants.Duration.regular) {
-                    if self.isSelected {
-                        self.alpha = 1
-                    } else {
-                        self.alpha = self.isHighlighted ? Constants.Measure.highlightedAlpha : 1
-                    }
-                }
-            }
-
-            // Animate scale
-            UIView.animate(withDuration: Constants.Duration.regular) {
-                if self.isSelected {
-                    self.transform = self.isHighlighted ?
-                        CGAffineTransform(scaleX: Constants.Measure.highlightedScale, y: Constants.Measure.highlightedScale) :
-                        .identity
-                } else {
-                    self.transform = .identity
-                }
-            }
-        }
-    }
+    var selectedBackgroundColor: UIColor?
 
     // MARK: - Lifecycle
 
@@ -59,8 +29,57 @@ class SegmentButton: UIButton {
     }
 }
 
+// MARK: - UIButton Overrides
+
+extension SegmentButton {
+    override var isSelected: Bool {
+        didSet {
+            if isSelected && isHighlighted { isHighlighted = false }
+            if isSelected != oldValue { updateBackground() }
+        }
+    }
+
+    override var isHighlighted: Bool {
+        didSet {
+            guard isHighlighted != oldValue else { return }
+
+            // Animate alpha fade
+            UIView.animate(withDuration: Constants.Duration.regular) {
+                UIView.setAnimationBeginsFromCurrentState(true)
+
+                if self.isSelected {
+                    self.alpha = 1
+                } else {
+                    self.alpha = self.isHighlighted ? Constants.Measure.highlightedAlpha : 1
+                }
+            }
+
+            // Animate scale
+            UIView.animate(withDuration: Constants.Duration.snappy) {
+                UIView.setAnimationBeginsFromCurrentState(true)
+
+                if self.isSelected {
+                    self.transform = self.isHighlighted ?
+                        CGAffineTransform(scaleX: Constants.Measure.highlightedScale, y: Constants.Measure.highlightedScale) :
+                        .identity
+                } else {
+                    self.transform = .identity
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Private Functions
+
 private extension SegmentButton {
     func setup() {
+        titleLabel?.textAlignment = .center
+        titleLabel?.font = Constants.Font.segmentTitleLabel
+        tintColor = Constants.Color.label
+        setTitleColor(Constants.Color.label, for: .normal)
+        adjustsImageWhenHighlighted = false
+
         layer.cornerRadius = Constants.Measure.segmentCornerRadius
         layer.shadowRadius = Constants.Measure.segmentShadowRadius
         layer.shadowColor = Constants.Color.segmentShadow.cgColor
@@ -69,8 +88,8 @@ private extension SegmentButton {
     }
 
     func updateBackground() {
-        if isSelected, let selectedBackgroundTintColor = selectedBackgroundTintColor {
-            backgroundColor = selectedBackgroundTintColor
+        if isSelected, let selectedBackgroundColor = selectedBackgroundColor {
+            backgroundColor = selectedBackgroundColor
         } else {
             backgroundColor = .clear
         }

@@ -27,9 +27,11 @@ open class UberSegmentedControl: UIControl {
 
     private var segments: [SegmentButton] { segmentsStackView.arrangedSubviews.compactMap { $0 as? SegmentButton } }
     private var selectionButton: SegmentButton?
-    private lazy var gestureHandler = StackViewGestureHandler(stackView: segmentsStackView)
+    private lazy var gestureHandler = StackViewGestureHandler(stackView: segmentsStackView, tracksMultiple: allowsMultipleSelection)
 
+    private let longPressGestureRecognizer = UILongPressGestureRecognizer()
     private let panGestureRecognizer = UIPanGestureRecognizer()
+
     private let buttonObservers = NSMapTable<SegmentButton, NSKeyValueObservation>(keyOptions: .weakMemory,
                                                                                    valueOptions: .strongMemory)
 
@@ -109,6 +111,9 @@ extension UberSegmentedControl {
     open override func didMoveToSuperview() {
         super.didMoveToSuperview()
 
+        addGestureRecognizer(longPressGestureRecognizer)
+        addGestureRecognizer(panGestureRecognizer)
+
         if !allowsMultipleSelection {
             buttonObservers.removeAllObjects()
 
@@ -126,6 +131,9 @@ extension UberSegmentedControl {
 
     open override func removeFromSuperview() {
         super.removeFromSuperview()
+
+        removeGestureRecognizer(longPressGestureRecognizer)
+        removeGestureRecognizer(panGestureRecognizer)
 
         buttonObservers.removeAllObjects()
     }
@@ -322,18 +330,13 @@ private extension UberSegmentedControl {
     }
 
     func insertSegment(withButton button: SegmentButton, at segment: Int, animated: Bool) {
-        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-
+        button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.adjustsImageWhenHighlighted = false
-        button.tintColor = Constants.Color.label
-        button.setTitleColor(Constants.Color.label, for: .normal)
-        button.titleLabel?.font = Constants.Font.segmentTitleLabel
 
         updateSegmentInsets(for: button)
 
         if allowsMultipleSelection {
-            button.selectedBackgroundTintColor = selectedSegmentTintColor
+            button.selectedBackgroundColor = selectedSegmentTintColor
         }
 
         if animated { button.isHidden = true }
@@ -361,10 +364,12 @@ private extension UberSegmentedControl {
         fill(with: dividersStackView, shouldAutoActivate: true)
         fill(with: segmentsStackView, shouldAutoActivate: true)
 
+        longPressGestureRecognizer.delegate = self
+        longPressGestureRecognizer.minimumPressDuration = 0
+        longPressGestureRecognizer.addTarget(self, action: #selector(handlePanGesture(recognizer:)))
+
         panGestureRecognizer.delegate = self
         panGestureRecognizer.addTarget(self, action: #selector(handlePanGesture(recognizer:)))
-
-        addGestureRecognizer(panGestureRecognizer)
     }
 
     func updateDividers() {
@@ -389,23 +394,13 @@ private extension UberSegmentedControl {
 
     func handleMultipleSelectionButtonTap(using button: UIButton) {
         button.isSelected = !button.isSelected
-
-        for segment in segments {
-            segment.isHighlighted = button == segment
-        }
     }
 
     func handleSingleSelectionButtonTap(using button: UIButton) {
         updateSelectionButton(using: button)
 
         for segment in segments {
-            if button == segment {
-                segment.isSelected = true
-                segment.isHighlighted = true
-            } else {
-                segment.isSelected = false
-                segment.isHighlighted = false
-            }
+            segment.isSelected = button == segment
         }
     }
 
@@ -424,7 +419,7 @@ private extension UberSegmentedControl {
             let selectionButton = SegmentButton()
 
             selectionButton.isUserInteractionEnabled = false
-            selectionButton.selectedBackgroundTintColor = selectedSegmentTintColor
+            selectionButton.selectedBackgroundColor = selectedSegmentTintColor
             selectionButton.isSelected = true
             selectionButton.center = button.center
             selectionButton.bounds = button.bounds
@@ -480,7 +475,7 @@ extension UberSegmentedControl {
 // MARK: - UIGestureRecognizerDelegate Conformance
 
 extension UberSegmentedControl: UIGestureRecognizerDelegate {
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
 }
@@ -488,18 +483,9 @@ extension UberSegmentedControl: UIGestureRecognizerDelegate {
 // MARK: - Gesture Recognizer Actions
 
 extension UberSegmentedControl {
-    @objc func handlePanGesture(recognizer: UIPanGestureRecognizer) {
-        if let button = gestureHandler.handle(recognizer: recognizer) as? UIButton {
+    @objc func handlePanGesture(recognizer: UIGestureRecognizer) {
+        if let button = gestureHandler.handle(recognizer: recognizer) {
             buttonTapped(button)
-        }
-
-        switch recognizer.state {
-        case .ended, .cancelled, .failed:
-            for button in segments {
-                button.isHighlighted = false
-            }
-        default:
-            break
         }
     }
 }
