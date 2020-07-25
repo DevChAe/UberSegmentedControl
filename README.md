@@ -2,11 +2,11 @@
 
 <img align="right" src="Animations/UberSegmentedControl-Demo.gif?raw=true" alt="UberSegmentedControl Demo" width="300" height="300" />
 
-A control inspired by Apple's `UISegmentedControl` that allows single or multiple selection and can display segments containing: only a title, only an image, or both at the same time.
+A control inspired by Apple's `UISegmentedControl` that allows single, multiple and momentary selections and can display segments containing: only a title, only an image, or both at the same time.
 
 ## Features
 
-- Allows single or multiple selection
+- Allows single, multiple and momentary selections
 - Segments may display titles, images or both at the same time
 - Supports both light and dark appearance (only iOS / iPadOS 13+)
 

@@ -12,8 +12,28 @@ import UIKit
 open class UberSegmentedControl: UIControl {
     // MARK: - Public Properties
 
+    /// A segment index value indicating that there is no selected segment. See `selectedSegmentIndex` for further information.
+    public class var noSegment: Int { -1 }
+
     /// Whether this segmented control allows multiple selection.
-    public let allowsMultipleSelection: Bool
+    private(set) public var allowsMultipleSelection: Bool
+
+    /// A Boolean value that determines whether segments in the receiver show selected state.
+    open var isMomentary: Bool = false {
+        didSet {
+            gestureHandler.isMomentary = isMomentary
+
+            if isMomentary && allowsMultipleSelection {
+                allowsMultipleSelection = false
+            }
+            
+            let color = isMomentary || allowsMultipleSelection ? selectedSegmentTintColor : nil
+
+            for segment in segments {
+                segment.selectedBackgroundColor = color
+            }
+        }
+    }
 
     /// Returns the number of segments the receiver has.
     open var numberOfSegments: Int { segmentsStackView.arrangedSubviews.count }
@@ -27,7 +47,7 @@ open class UberSegmentedControl: UIControl {
 
     private var segments: [SegmentButton] { segmentsStackView.arrangedSubviews.compactMap { $0 as? SegmentButton } }
     private var selectionButton: SegmentButton?
-    private lazy var gestureHandler = StackViewGestureHandler(stackView: segmentsStackView, tracksMultiple: allowsMultipleSelection)
+    private lazy var gestureHandler = StackViewGestureHandler(stackView: segmentsStackView, tracksMultiple: allowsMultipleSelection, isMomentary: isMomentary)
 
     private let longPressGestureRecognizer = UILongPressGestureRecognizer()
     private let panGestureRecognizer = UIPanGestureRecognizer()
@@ -96,7 +116,7 @@ extension UberSegmentedControl {
     open override func layoutSubviews() {
         super.layoutSubviews()
 
-        if !allowsMultipleSelection {
+        if !allowsMultipleSelection && !isMomentary {
             // Ensure `selectionButton` is setup when single selection mode is used and a segment is selected.
             if selectionButton == nil, let segmentIndex = selectedSegmentIndexes.first {
                 let segment = segments[segmentIndex]
@@ -284,6 +304,8 @@ extension UberSegmentedControl {
         get { IndexSet(segments.enumerated().filter { $1.isSelected }.map { $0.offset }) }
 
         set {
+            guard !isMomentary else { return }
+
             var shouldDeselectOtherSegments = false
 
             for (i, segment) in segments.enumerated() {
@@ -300,6 +322,36 @@ extension UberSegmentedControl {
             }
 
             updateDividers()
+        }
+    }
+
+    /// The index number identifying the selected segment (that is, the last segment touched).
+    ///
+    /// - Note: When `allowsMultipleSelection` is enabled, this property returns `UberSegmentedControl.noSegment` and setting a new value does nothing.
+    @objc open var selectedSegmentIndex: Int {
+        get {
+            guard !allowsMultipleSelection else { return UberSegmentedControl.noSegment }
+
+            if let first = selectedSegmentIndexes.first {
+                return first
+            } else {
+                return UberSegmentedControl.noSegment
+            }
+        }
+
+        set {
+            guard !allowsMultipleSelection,
+                  newValue >= UberSegmentedControl.noSegment,
+                  newValue < numberOfSegments
+            else {
+                return
+            }
+
+            if newValue == UberSegmentedControl.noSegment {
+                selectedSegmentIndexes = []
+            } else {
+                selectedSegmentIndexes = [newValue]
+            }
         }
     }
 }
@@ -335,7 +387,7 @@ private extension UberSegmentedControl {
 
         updateSegmentInsets(for: button)
 
-        if allowsMultipleSelection {
+        if allowsMultipleSelection || isMomentary {
             button.selectedBackgroundColor = selectedSegmentTintColor
         }
 
@@ -352,14 +404,6 @@ private extension UberSegmentedControl {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = Constants.Color.background
         layer.cornerRadius = Constants.Measure.cornerRadius
-
-        if intrinsicContentSize.height != UIView.noIntrinsicMetric {
-            heightAnchor.constraint(equalToConstant: intrinsicContentSize.height).isActive = true
-        }
-
-        if intrinsicContentSize.width != UIView.noIntrinsicMetric {
-            widthAnchor.constraint(equalToConstant: intrinsicContentSize.width).isActive = true
-        }
 
         fill(with: dividersStackView, shouldAutoActivate: true)
         fill(with: segmentsStackView, shouldAutoActivate: true)
@@ -397,10 +441,29 @@ private extension UberSegmentedControl {
     }
 
     func handleSingleSelectionButtonTap(using button: UIButton) {
+        guard !isMomentary else { return }
+
         updateSelectionButton(using: button)
 
         for segment in segments {
             segment.isSelected = button == segment
+        }
+    }
+
+    func handleMomentarySelectionButtonTap(using button: UIButton) {
+        let previousSelectedState = button.isSelected
+        let previousUserInteractionEnabled = segmentsStackView.isUserInteractionEnabled
+
+        segmentsStackView.isUserInteractionEnabled = false
+        button.isSelected = !previousSelectedState
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.Duration.snappy) {
+            button.isSelected = previousSelectedState
+            self.segmentsStackView.isUserInteractionEnabled = previousUserInteractionEnabled
+
+            UIView.animate(withDuration: Constants.Duration.regular) {
+                self.updateDividers()
+            }
         }
     }
 
@@ -443,10 +506,18 @@ private extension UberSegmentedControl {
 extension UberSegmentedControl {
     @objc func buttonTapped(_ button: UIButton) {
         guard button.isEnabled else { return }
-        
+
         willChangeValue(for: \.selectedSegmentIndexes)
 
-        if allowsMultipleSelection {
+        if !allowsMultipleSelection {
+            willChangeValue(for: \.selectedSegmentIndex)
+        }
+
+        if isMomentary {
+            UIView.animate(withDuration: Constants.Duration.snappy) {
+                self.handleMomentarySelectionButtonTap(using: button)
+            }
+        } else if allowsMultipleSelection {
             UIView.animate(withDuration: Constants.Duration.snappy) {
                 self.handleMultipleSelectionButtonTap(using: button)
             }
@@ -461,8 +532,12 @@ extension UberSegmentedControl {
                 /* NO-OP */
             })
         }
-        
+
         didChangeValue(for: \.selectedSegmentIndexes)
+
+        if !allowsMultipleSelection {
+            didChangeValue(for: \.selectedSegmentIndex)
+        }
 
         sendActions(for: .valueChanged)
 

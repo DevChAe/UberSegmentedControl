@@ -140,6 +140,60 @@ final class UberSegmentedControlTests: XCTestCase {
         // Duplicated indices should be ignored.
         XCTAssertEqual(multiTextSC.selectedSegmentIndexes, IndexSet([0, 1]))
     }
+
+    func testIsMomentaryDisablesMultipleSelection() {
+        singleTextSC.isMomentary = true
+
+        XCTAssertTrue(singleTextSC.isMomentary)
+        XCTAssertFalse(singleTextSC.allowsMultipleSelection)
+
+        multiTextSC.isMomentary = true
+
+        XCTAssertTrue(multiTextSC.isMomentary)
+        XCTAssertFalse(multiTextSC.allowsMultipleSelection)
+    }
+
+    func testSelectedSegmentIndex() {
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
+        singleTextSC.selectedSegmentIndex = 1
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, 1)
+        singleTextSC.selectedSegmentIndex = 2
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, 1)
+        singleTextSC.selectedSegmentIndex = -2
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, 1)
+        singleTextSC.selectedSegmentIndex = -1
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
+    }
+
+    func testSelectedSegmentIndexInMomentaryMode() {
+        singleTextSC.isMomentary = true
+
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
+        singleTextSC.selectedSegmentIndex = 1
+        XCTAssertEqual(singleTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
+    }
+
+    func testSelectedSegmentIndexWhenUpdatingSelectedSegmentIndexInMultipleSelectionMode() {
+        XCTAssertEqual(multiTextSC.selectedSegmentIndexes, IndexSet([]))
+
+        // Updating `selectedSegmentIndex`
+        multiTextSC.selectedSegmentIndex = 1
+        // Should return `noSegment`.
+        XCTAssertEqual(multiTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
+        // Should return an empty set.
+        XCTAssertEqual(multiTextSC.selectedSegmentIndexes, IndexSet([]))
+    }
+
+    func testSelectedSegmentIndexWhenUpdatingSelectedSegmentIndexesInMultipleSelectionMode() {
+        XCTAssertEqual(multiTextSC.selectedSegmentIndexes, IndexSet([]))
+        
+        // Updating `selectedSegmentIndexes`
+        multiTextSC.selectedSegmentIndexes = IndexSet([0, 1])
+        // Should return `noSegment`.
+        XCTAssertEqual(multiTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
+        // Should update `selectedSegmentIndexes`.
+        XCTAssertEqual(multiTextSC.selectedSegmentIndexes, IndexSet([0, 1]))
+    }
 }
 
 private extension UberSegmentedControlTests {

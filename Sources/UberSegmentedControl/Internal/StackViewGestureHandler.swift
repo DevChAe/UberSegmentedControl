@@ -8,6 +8,10 @@
 import UIKit
 
 class StackViewGestureHandler {
+    // MARK: - Internal Properties
+
+    var isMomentary: Bool = false
+
     // MARK: - Private Properties
 
     private let stackView: UIStackView
@@ -30,9 +34,10 @@ class StackViewGestureHandler {
 
     // MARK: - Lifecycle
 
-    init(stackView: UIStackView, tracksMultiple: Bool = false) {
+    init(stackView: UIStackView, tracksMultiple: Bool = false, isMomentary: Bool = false) {
         self.stackView = stackView
         self.tracksMultiple = tracksMultiple
+        self.isMomentary = isMomentary
     }
 }
 
@@ -59,6 +64,10 @@ extension StackViewGestureHandler {
             }
         }
 
+        // Return unless user interaction is enabled in `stackView`.
+        // However, we still want to keep track of `currentGestures`.
+        guard stackView.isUserInteractionEnabled else { return nil }
+
         let targetPoint: CGPoint
 
         if let panRecognizer = recognizer as? UIPanGestureRecognizer {
@@ -76,12 +85,17 @@ extension StackViewGestureHandler {
                     trackedButton = button
                 }
 
-                highlightedButton = button
+                if !isMomentary { highlightedButton = button }
 
                 switch recognizer {
                 case is UILongPressGestureRecognizer:
-                    // Ignore long press gesture until gesture ends.
-                    guard recognizer.state != .began, recognizer.state != .changed else { continue }
+                    if isMomentary {
+                        // Only care about `began` state.
+                        guard recognizer.state == .began else { continue }
+                    } else {
+                        // Ignore long press gesture until gesture ends.
+                        guard recognizer.state != .began, recognizer.state != .changed else { continue }
+                    }
                 case is UIPanGestureRecognizer:
                     // Ignore pan gesture if tracking single button and there is no tracked button.
                     if !tracksMultiple, trackedButton == nil { continue }
@@ -90,7 +104,7 @@ extension StackViewGestureHandler {
                 }
 
                 if !recognizedButtons.contains(button) {
-                    if tracksMultiple { recognizedButtons.insert(button) }
+                    if tracksMultiple || isMomentary { recognizedButtons.insert(button) }
 
                     return button
                 }

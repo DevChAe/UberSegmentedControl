@@ -5,41 +5,69 @@ import PlaygroundSupport
 import UberSegmentedControl
 
 class MyViewController : UIViewController {
-    let observers = NSMapTable<UberSegmentedControl, NSKeyValueObservation>(keyOptions: .weakMemory,
-                                                                            valueOptions: .strongMemory)
-    
-    override func loadView() {
-        let view = UIView()
+    let items = ["Bold", "Italics", "Underline"]
 
-        view.backgroundColor = .systemBackground
-        view.overrideUserInterfaceStyle = .light
+    let imageItems = [
+        UIImage(named: "ic_mail_outline_18pt")!,
+        UIImage(named: "ic_import_contacts_18pt")!,
+        UIImage(named: "ic_contact_phone_18pt")!,
+    ]
 
-        let items = ["Bold", "Italics", "Underline"]
+    lazy var uiSC = UISegmentedControl(items: items)
+    lazy var uiImageSC = UISegmentedControl(items: imageItems)
 
-        let uiSC = UISegmentedControl(items: items)
-        let uberSC = UberSegmentedControl(items: items)
-        let uberMultiSC = UberSegmentedControl(items: items, allowsMultipleSelection: true)
+    lazy var uiMomentarySC: UISegmentedControl = {
+        let control = UISegmentedControl(items: items)
 
-        let imageItems = [
-            UIImage(named: "ic_mail_outline_18pt")!,
-            UIImage(named: "ic_import_contacts_18pt")!,
-            UIImage(named: "ic_contact_phone_18pt")!,
-        ]
+        control.isMomentary = true
+        control.addTarget(self, action: #selector(uiSCChanged), for: .valueChanged)
 
-        let uiImageSC = UISegmentedControl(items: imageItems)
-        let uberImageSC = UberSegmentedControl(items: imageItems)
-        let uberMultiImageSC = UberSegmentedControl(items: imageItems, allowsMultipleSelection: true)
+        return control
+    }()
 
-        let uberImageAndLabelSC = UberSegmentedControl(items: imageItems, allowsMultipleSelection: true)
+    lazy var uberSC = UberSegmentedControl(items: items)
+    lazy var uberMultiSC = UberSegmentedControl(items: items, allowsMultipleSelection: true)
+    lazy var uberImageSC = UberSegmentedControl(items: imageItems)
+
+    lazy var uberMultiImageSC: UberSegmentedControl = {
+        let control = UberSegmentedControl(items: imageItems, allowsMultipleSelection: true)
+
+        control.addTarget(self, action: #selector(uberSCChanged), for: .valueChanged)
+
+        // Toggle segments 0 and 2 on
+        control.selectedSegmentIndexes = IndexSet([0, 2])
+
+        // Disable segment 1
+        control.setEnabled(false, forSegmentAt: 1)
+
+        return control
+    }()
+
+    lazy var uberImageAndLabelSC: UberSegmentedControl = {
+        let control = UberSegmentedControl(items: imageItems, allowsMultipleSelection: true)
 
         for (idx, label) in ["Mail", "Book", "Phone"].enumerated() {
-            uberImageAndLabelSC.setTitle(label, forSegmentAt: idx)
+            control.setTitle(label, forSegmentAt: idx)
         }
 
+        return control
+    }()
+
+    lazy var uberMomentarySC: UberSegmentedControl = {
+        let control = UberSegmentedControl(items: items)
+
+        control.isMomentary = true
+        control.addTarget(self, action: #selector(uberSCChanged), for: .valueChanged)
+
+        return control
+    }()
+
+    lazy var stackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             label(titled: "UISegmentedControl"),
             uiSC,
             uiImageSC,
+            uiMomentarySC,
             UIView(),
             label(titled: "UberSegmentedControl"),
             uberSC,
@@ -48,47 +76,56 @@ class MyViewController : UIViewController {
             uberMultiSC,
             uberMultiImageSC,
             label(titled: "With Image and Title", fontSize: UIFont.smallSystemFontSize),
-            uberImageAndLabelSC
+            uberImageAndLabelSC,
+            label(titled: "Momentary", fontSize: UIFont.smallSystemFontSize),
+            uberMomentarySC
         ])
-
-        // Toggle segments 0 and 2 on
-        uberMultiImageSC.selectedSegmentIndexes = IndexSet([0, 2])
-
-        // Disable segment 1
-        uberMultiImageSC.setEnabled(false, forSegmentAt: 1)
-
-        // Handle value changes
-        uberMultiImageSC.addTarget(self, action: #selector(uberSCChanged), for: .valueChanged)
-        
-        // Alternatively, observe changes on `selectedSegmentIndexes`.
-        observers.setObject(uberMultiImageSC.observe(\.selectedSegmentIndexes, options: [.new, .old]) { (control, change) in
-            if let oldIndexes = change.oldValue, let newIndexes = change.newValue {
-                print("oldIndexes: \(Array(oldIndexes)), newIndexes: \(Array(newIndexes))")
-            }
-        }, forKey: uberMultiImageSC)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 10
 
-        view.addSubview(stackView)
+        return stackView
+    }()
 
-        stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+    var observers: [NSKeyValueObservation] = []
+
+    override func loadView() {
+        let view = UIView()
+
+        view.backgroundColor = .systemBackground
+        view.overrideUserInterfaceStyle = .light
 
         self.view = view
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        setupObservers()
+
+        view.addSubview(stackView)
+
+        stackView.removeConstraints(stackView.constraints)
+        stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         
-        observers.removeAllObjects()
+        removeObservers()
+        stackView.removeFromSuperview()
     }
 }
 
 // MARK: - Actions
 
 extension MyViewController {
+    @objc func uiSCChanged(_ sender: UISegmentedControl) {
+        print("selectedSegmentIndex: \(sender.selectedSegmentIndex)")
+    }
+
     @objc func uberSCChanged(_ sender: UberSegmentedControl) {
         print("selectedSegmentIndexes: \(Array(sender.selectedSegmentIndexes))")
     }
@@ -97,6 +134,26 @@ extension MyViewController {
 // MARK: - Private Functions
 
 private extension MyViewController {
+    func setupObservers() {
+        // Observe changes on `uberMomentarySC.selectedSegmentIndexes`.
+        observers.append(uberMomentarySC.observe(\.selectedSegmentIndex, options: [.new, .old]) { (control, change) in
+            if let oldIndex = change.oldValue, let newIndex = change.newValue {
+                print("oldIndex: \(oldIndex), newIndex: \(newIndex)")
+            }
+        })
+
+        // Observe changes on `uberMomentarySC.selectedSegmentIndexes`.
+        observers.append(uberMultiImageSC.observe(\.selectedSegmentIndexes, options: [.new, .old]) { (control, change) in
+            if let oldIndexes = change.oldValue, let newIndexes = change.newValue {
+                print("oldIndexes: \(Array(oldIndexes)), newIndexes: \(Array(newIndexes))")
+            }
+        })
+    }
+
+    func removeObservers() {
+        observers.removeAll()
+    }
+
     func label(titled title: String, fontSize: CGFloat = UIFont.labelFontSize) -> UILabel {
         let label = UILabel()
 
