@@ -308,6 +308,10 @@ extension UberSegmentedControl {
 
             var shouldDeselectOtherSegments = false
 
+            if newValue.isEmpty {
+                selectionButton?.alpha = 0
+            }
+
             for (i, segment) in segments.enumerated() {
                 if shouldDeselectOtherSegments {
                     segment.isSelected = false
