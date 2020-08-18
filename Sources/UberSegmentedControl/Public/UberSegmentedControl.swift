@@ -294,6 +294,36 @@ extension UberSegmentedControl {
         return segments[segment].isEnabled
     }
 
+    /// Sets the semantic content attribute for a given segment.
+    ///
+    /// - Parameter segment: An index number identifying a segment in the control.
+    /// - Parameter attribute: A `UISemanticContentAttribute` to apply to the segment.
+    open func setSegmentSemanticContentAttribute(at segment: Int, attribute: UISemanticContentAttribute) {
+        let button = segments[segment]
+
+        button.semanticContentAttribute = attribute
+    }
+
+    /// Sets the default image edge inset for a given segment.
+    ///
+    /// - Parameter segment: An index number identifying a segment in the control.
+    /// - Parameter insets: The `UIEdgeInsets` to apply to the segment's image.
+    open func setSegmentImageEdgeInsets(at segment: Int, insets: UIEdgeInsets) {
+        let button = segments[segment]
+
+        button.imageEdgeInsets = insets
+    }
+
+    /// Sets the default title edge inset for a given segment.
+    ///
+    /// - Parameter segment: An index number identifying a segment in the control.
+    /// - Parameter insets: The `UIEdgeInsets` to apply to the segment's title.
+    open func setSegmentTitleEdgeInsets(at segment: Int, insets: UIEdgeInsets) {
+        let button = segments[segment]
+
+        button.titleEdgeInsets = insets
+    }
+
     /// The color to use for highlighting the currently selected segment.
     open var selectedSegmentTintColor: UIColor? {
         return Constants.Color.selectedSegmentTint
