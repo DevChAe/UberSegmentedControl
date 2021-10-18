@@ -89,7 +89,7 @@ open class UberSegmentedControl: UIControl {
     ///
     /// - Parameter items: An array of NSString objects (for segment titles) or UIImage objects (for segment images).
     /// - Parameter config: A `Config` object.
-    public init(items: [Any]?, config: Config = Config()) {
+    public init(items: [Any]? = nil, config: Config = Config()) {
         self.config = config
 
         super.init(frame: .zero)
