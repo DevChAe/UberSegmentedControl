@@ -25,19 +25,19 @@ class MyViewController : UIViewController {
         return control
     }()
 
-    lazy var customConfig = Config(
+    lazy var customConfig = UberSegmentedControl.Config(
         font: .monospacedSystemFont(ofSize: 10, weight: .bold),
         tintColor: .systemRed,
         allowsMultipleSelection: false
     )
 
     lazy var uberSC = UberSegmentedControl(items: items)
-    lazy var uberMultiSC = UberSegmentedControl(items: items, config: Config(allowsMultipleSelection: true))
+    lazy var uberMultiSC = UberSegmentedControl(items: items, config: UberSegmentedControl.Config(allowsMultipleSelection: true))
     lazy var uberImageSC = UberSegmentedControl(items: imageItems)
     lazy var uberSCWithCustomConfig = UberSegmentedControl(items: items, config: customConfig)
 
     lazy var uberMultiImageSC: UberSegmentedControl = {
-        let control = UberSegmentedControl(items: imageItems, config: Config(allowsMultipleSelection: true))
+        let control = UberSegmentedControl(items: imageItems, config: UberSegmentedControl.Config(allowsMultipleSelection: true))
 
         control.addTarget(self, action: #selector(uberSCChanged), for: .valueChanged)
 
@@ -51,7 +51,7 @@ class MyViewController : UIViewController {
     }()
 
     lazy var uberImageAndLabelSC: UberSegmentedControl = {
-        let control = UberSegmentedControl(items: imageItems, config: Config(allowsMultipleSelection: true))
+        let control = UberSegmentedControl(items: imageItems, config: UberSegmentedControl.Config(allowsMultipleSelection: true))
 
         for (idx, label) in ["Mail", "Book", "Phone"].enumerated() {
             control.setTitle(label, forSegmentAt: idx)

@@ -6,7 +6,7 @@ final class UberSegmentedControlTests: XCTestCase {
     var multiTextSC: UberSegmentedControl! = nil
     var customConfigSC: UberSegmentedControl! = nil
 
-    lazy var customConfig = Config(
+    lazy var customConfig = UberSegmentedControl.Config(
         font: .boldSystemFont(ofSize: 10),
         tintColor: .systemRed,
         allowsMultipleSelection: false
@@ -14,7 +14,7 @@ final class UberSegmentedControlTests: XCTestCase {
 
     override func setUp() {
         singleTextSC = UberSegmentedControl(items: ["Left", "Right"])
-        multiTextSC = UberSegmentedControl(items: ["Left", "Right"], config: Config(allowsMultipleSelection: true))
+        multiTextSC = UberSegmentedControl(items: ["Left", "Right"], config: UberSegmentedControl.Config(allowsMultipleSelection: true))
         customConfigSC = UberSegmentedControl(items: ["Left", "Right"], config: customConfig)
     }
 
