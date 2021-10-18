@@ -4,15 +4,24 @@ import XCTest
 final class UberSegmentedControlTests: XCTestCase {
     var singleTextSC: UberSegmentedControl! = nil
     var multiTextSC: UberSegmentedControl! = nil
+    var customConfigSC: UberSegmentedControl! = nil
+
+    lazy var customConfig = Config(
+        font: .boldSystemFont(ofSize: 10),
+        tintColor: .systemRed,
+        allowsMultipleSelection: false
+    )
 
     override func setUp() {
         singleTextSC = UberSegmentedControl(items: ["Left", "Right"])
-        multiTextSC = UberSegmentedControl(items: ["Left", "Right"], allowsMultipleSelection: true)
+        multiTextSC = UberSegmentedControl(items: ["Left", "Right"], config: Config(allowsMultipleSelection: true))
+        customConfigSC = UberSegmentedControl(items: ["Left", "Right"], config: customConfig)
     }
 
     override func tearDown() {
         singleTextSC = nil
         multiTextSC = nil
+        customConfigSC = nil
     }
 
     func testNumberOfSegments() {
@@ -145,12 +154,12 @@ final class UberSegmentedControlTests: XCTestCase {
         singleTextSC.isMomentary = true
 
         XCTAssertTrue(singleTextSC.isMomentary)
-        XCTAssertFalse(singleTextSC.allowsMultipleSelection)
+        XCTAssertFalse(singleTextSC.config.allowsMultipleSelection)
 
         multiTextSC.isMomentary = true
 
         XCTAssertTrue(multiTextSC.isMomentary)
-        XCTAssertFalse(multiTextSC.allowsMultipleSelection)
+        XCTAssertFalse(multiTextSC.config.allowsMultipleSelection)
     }
 
     func testSelectedSegmentIndex() {
@@ -193,6 +202,10 @@ final class UberSegmentedControlTests: XCTestCase {
         XCTAssertEqual(multiTextSC.selectedSegmentIndex, UberSegmentedControl.noSegment)
         // Should update `selectedSegmentIndexes`.
         XCTAssertEqual(multiTextSC.selectedSegmentIndexes, IndexSet([0, 1]))
+    }
+
+    func testCustomConfigSegmentedControl() {
+        XCTAssertEqual(customConfigSC.config, customConfig)
     }
 }
 

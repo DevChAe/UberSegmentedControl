@@ -14,8 +14,12 @@ class SegmentButton: UIButton {
 
     // MARK: - Lifecycle
 
-    convenience init() {
+    convenience init(font: UIFont, tintColor: UIColor) {
         self.init(frame: .zero)
+
+        self.titleLabel?.font = font
+        self.tintColor = tintColor
+        self.setTitleColor(tintColor, for: .normal)
     }
 
     override init(frame: CGRect) {
@@ -75,9 +79,6 @@ extension SegmentButton {
 private extension SegmentButton {
     func setup() {
         titleLabel?.textAlignment = .center
-        titleLabel?.font = Constants.Font.segmentTitleLabel
-        tintColor = Constants.Color.label
-        setTitleColor(Constants.Color.label, for: .normal)
         adjustsImageWhenHighlighted = false
 
         layer.cornerRadius = Constants.Measure.segmentCornerRadius

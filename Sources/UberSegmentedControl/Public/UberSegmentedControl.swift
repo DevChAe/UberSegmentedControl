@@ -16,7 +16,10 @@ open class UberSegmentedControl: UIControl {
     public class var noSegment: Int { -1 }
 
     /// Whether this segmented control allows multiple selection.
-    private(set) public var allowsMultipleSelection: Bool
+    private(set) public var allowsMultipleSelection: Bool {
+        get { config.allowsMultipleSelection }
+        set { config.allowsMultipleSelection = newValue }
+    }
 
     /// A Boolean value that determines whether segments in the receiver show selected state.
     open var isMomentary: Bool = false {
@@ -78,14 +81,16 @@ open class UberSegmentedControl: UIControl {
         return stackView
     }()
 
+    public private(set) var config: Config
+
     // MARK: - Lifecycle
 
     /// Initializes and returns a segmented control with segments having the given titles or images.
     ///
     /// - Parameter items: An array of NSString objects (for segment titles) or UIImage objects (for segment images).
-    /// - Parameter allowsMultipleSelection: Whether this segmented control allows multiple selection.
-    public init(items: [Any]?, allowsMultipleSelection: Bool = false) {
-        self.allowsMultipleSelection = allowsMultipleSelection
+    /// - Parameter config: A `Config` object.
+    public init(items: [Any]?, config: Config = Config()) {
+        self.config = config
 
         super.init(frame: .zero)
 
@@ -168,7 +173,7 @@ extension UberSegmentedControl {
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter animated: true if the insertion of the new segment should be animated, otherwise false.
     open func insertSegment(withTitle title: String?, at segment: Int, animated: Bool) {
-        let button = SegmentButton()
+        let button = SegmentButton(font: config.font, tintColor: config.tintColor)
 
         button.setTitle(title, for: .normal)
         button.accessibilityLabel = title
@@ -182,7 +187,7 @@ extension UberSegmentedControl {
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter animated: true if the insertion of the new segment should be animated, otherwise false.
     open func insertSegment(with image: UIImage?, at segment: Int, animated: Bool) {
-        let button = SegmentButton()
+        let button = SegmentButton(font: config.font, tintColor: config.tintColor)
 
         button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .highlighted)
@@ -513,7 +518,7 @@ private extension UberSegmentedControl {
         if selectionButton == nil {
             UIView.setAnimationsEnabled(false)
 
-            let selectionButton = SegmentButton()
+            let selectionButton = SegmentButton(font: config.font, tintColor: config.tintColor)
 
             selectionButton.isUserInteractionEnabled = false
             selectionButton.selectedBackgroundColor = selectedSegmentTintColor

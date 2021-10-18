@@ -31,7 +31,7 @@ let observers = NSMapTable<UberSegmentedControl, NSKeyValueObservation>(keyOptio
 override func loadView() {
   let items = ["Bold", "Italics", "Underline"]
 
-  let uberSC = UberSegmentedControl(items: items, allowsMultipleSelection: true)
+  let uberSC = UberSegmentedControl(items: items, config: Config(allowsMultipleSelection: true))
 
   // Toggle segments 0 and 2 on
   uberSC.selectedSegmentIndexes = IndexSet([0, 2])
