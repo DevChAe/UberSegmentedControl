@@ -43,7 +43,7 @@ open class UberSegmentedControl: UIControl {
 
     /// The natural size for the control.
     open override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: Constants.Measure.segmentHeight)
+        CGSize(width: UIView.noIntrinsicMetric, height: config.segmentHeight)
     }
 
     // MARK: - Private Properties
@@ -137,7 +137,9 @@ extension UberSegmentedControl {
         super.didMoveToSuperview()
 
         addGestureRecognizer(longPressGestureRecognizer)
-        addGestureRecognizer(panGestureRecognizer)
+        if !config.denyPanGesture {
+            addGestureRecognizer(panGestureRecognizer)
+        }
 
         if !allowsMultipleSelection {
             buttonObservers.removeAllObjects()
@@ -158,7 +160,9 @@ extension UberSegmentedControl {
         super.removeFromSuperview()
 
         removeGestureRecognizer(longPressGestureRecognizer)
-        removeGestureRecognizer(panGestureRecognizer)
+        if !config.denyPanGesture {
+            removeGestureRecognizer(panGestureRecognizer)
+        }
 
         buttonObservers.removeAllObjects()
     }
@@ -172,7 +176,7 @@ extension UberSegmentedControl {
     /// - Parameter title: A string to use as the segment’s title.
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter animated: true if the insertion of the new segment should be animated, otherwise false.
-    open func insertSegment(withTitle title: String?, at segment: Int, animated: Bool) {
+    public func insertSegment(withTitle title: String?, at segment: Int, animated: Bool) {
         let button = SegmentButton(font: config.font, tintColor: config.tintColor)
 
         button.setTitle(title, for: .normal)
@@ -186,7 +190,7 @@ extension UberSegmentedControl {
     /// - Parameter image: An image object to use as the content of the segment.
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter animated: true if the insertion of the new segment should be animated, otherwise false.
-    open func insertSegment(with image: UIImage?, at segment: Int, animated: Bool) {
+    public func insertSegment(with image: UIImage?, at segment: Int, animated: Bool) {
         let button = SegmentButton(font: config.font, tintColor: config.tintColor)
 
         button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
@@ -199,7 +203,7 @@ extension UberSegmentedControl {
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter animated: true if the removal of the segment should be animated, otherwise false.
-    open func removeSegment(at segment: Int, animated: Bool) {
+    public func removeSegment(at segment: Int, animated: Bool) {
         guard segment < segmentsStackView.arrangedSubviews.count else { return }
 
         let view = segmentsStackView.arrangedSubviews[segment]
@@ -226,7 +230,7 @@ extension UberSegmentedControl {
     }
 
     /// Removes all segments of the receiver.
-    open func removeAllSegments() {
+    public func removeAllSegments() {
         while numberOfSegments > 0 {
             removeSegment(at: numberOfSegments - 1, animated: false)
         }
@@ -236,7 +240,7 @@ extension UberSegmentedControl {
     ///
     /// - Parameter title: A string to display in the segment as its title.
     /// - Parameter segment: An index number identifying a segment in the control.
-    open func setTitle(_ title: String?, forSegmentAt segment: Int) {
+    public func setTitle(_ title: String?, forSegmentAt segment: Int) {
         guard segment < segments.count else { return }
 
         let button = segments[segment]
@@ -250,7 +254,7 @@ extension UberSegmentedControl {
     /// Returns the title of the specified segment.
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
-    open func titleForSegment(at segment: Int) -> String? {
+    public func titleForSegment(at segment: Int) -> String? {
         guard segment < segments.count else { return nil }
 
         return segments[segment].title(for: .normal)
@@ -260,7 +264,7 @@ extension UberSegmentedControl {
     ///
     /// - Parameter image: An image object to display in the segment.
     /// - Parameter segment: An index number identifying a segment in the control.
-    open func setImage(_ image: UIImage?, forSegmentAt segment: Int) {
+    public func setImage(_ image: UIImage?, forSegmentAt segment: Int) {
         guard segment < segments.count else { return }
 
         let button = segments[segment]
@@ -273,7 +277,7 @@ extension UberSegmentedControl {
     /// Returns the image for a specific segment.
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
-    open func imageForSegment(at segment: Int) -> UIImage? {
+    public func imageForSegment(at segment: Int) -> UIImage? {
         guard segment < segments.count else { return nil }
 
         return segments[segment].image(for: .normal)
@@ -284,7 +288,7 @@ extension UberSegmentedControl {
     /// - Parameter enabled: true to enable the specified segment or false to disable the segment. By default,
     /// segments are enabled.
     /// - Parameter segment: An index number identifying a segment in the control.
-    open func setEnabled(_ enabled: Bool, forSegmentAt segment: Int) {
+    public func setEnabled(_ enabled: Bool, forSegmentAt segment: Int) {
         guard segment < segments.count else { return }
 
         segments[segment].isEnabled = enabled
@@ -293,7 +297,7 @@ extension UberSegmentedControl {
     /// Returns whether the indicated segment is enabled.
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
-    open func isEnabledForSegment(at segment: Int) -> Bool {
+    public func isEnabledForSegment(at segment: Int) -> Bool {
         guard segment < segments.count else { return false }
 
         return segments[segment].isEnabled
@@ -303,7 +307,7 @@ extension UberSegmentedControl {
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter attribute: A `UISemanticContentAttribute` to apply to the segment.
-    open func setSegmentSemanticContentAttribute(at segment: Int, attribute: UISemanticContentAttribute) {
+    public func setSegmentSemanticContentAttribute(at segment: Int, attribute: UISemanticContentAttribute) {
         let button = segments[segment]
 
         button.semanticContentAttribute = attribute
@@ -313,7 +317,7 @@ extension UberSegmentedControl {
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter insets: The `UIEdgeInsets` to apply to the segment's image.
-    open func setSegmentImageEdgeInsets(at segment: Int, insets: UIEdgeInsets) {
+    public func setSegmentImageEdgeInsets(at segment: Int, insets: UIEdgeInsets) {
         let button = segments[segment]
 
         button.imageEdgeInsets = insets
@@ -323,15 +327,15 @@ extension UberSegmentedControl {
     ///
     /// - Parameter segment: An index number identifying a segment in the control.
     /// - Parameter insets: The `UIEdgeInsets` to apply to the segment's title.
-    open func setSegmentTitleEdgeInsets(at segment: Int, insets: UIEdgeInsets) {
+    public func setSegmentTitleEdgeInsets(at segment: Int, insets: UIEdgeInsets) {
         let button = segments[segment]
 
         button.titleEdgeInsets = insets
     }
 
     /// The color to use for highlighting the currently selected segment.
-    open var selectedSegmentTintColor: UIColor? {
-        return Constants.Color.selectedSegmentTint
+    public var selectedSegmentTintColor: UIColor? {
+        return config.selectedSegmentTint
     }
 
     /// Indexes of selected segments (can be more than one if `allowsMultipleSelection` is `true`.)
@@ -451,8 +455,10 @@ private extension UberSegmentedControl {
         longPressGestureRecognizer.minimumPressDuration = 0
         longPressGestureRecognizer.addTarget(self, action: #selector(handleGesture(recognizer:)))
 
-        panGestureRecognizer.delegate = self
-        panGestureRecognizer.addTarget(self, action: #selector(handleGesture(recognizer:)))
+        if !config.denyPanGesture {
+            panGestureRecognizer.delegate = self
+            panGestureRecognizer.addTarget(self, action: #selector(handleGesture(recognizer:)))
+        }
     }
 
     func updateDividers() {
@@ -617,19 +623,34 @@ public extension UberSegmentedControl {
 
         /// Whether the `UberSegmentedControl` supports multiple selection.
         public internal(set) var allowsMultipleSelection: Bool
+        
+        public let segmentHeight: CGFloat
+        
+        public let selectedSegmentTint: UIColor
+        
+        public let denyPanGesture: Bool
 
         /// Default font.
         public static let defaultFont = Constants.Font.segmentTitleLabel
 
         /// Default tint color.
         public static let defaultTintColor = Constants.Color.label
+        
+        public static let defaultSegmentHeight = Constants.Measure.segmentHeight
+        public static let defaultSelectedSegmentTint = Constants.Color.selectedSegmentTint
 
         /// Initializes a new `Config` object with any user-provided options.
         public init(font: UIFont = Config.defaultFont,
                     tintColor: UIColor = Config.defaultTintColor,
+                    segmentHeight: CGFloat = Config.defaultSegmentHeight,
+                    selectedSegmentTint: UIColor = Config.defaultSelectedSegmentTint,
+                    denyPanGesture: Bool = false,
                     allowsMultipleSelection: Bool = false) {
             self.font = font
             self.tintColor = tintColor
+            self.segmentHeight = segmentHeight
+            self.selectedSegmentTint = selectedSegmentTint
+            self.denyPanGesture = denyPanGesture
             self.allowsMultipleSelection = allowsMultipleSelection
         }
     }
